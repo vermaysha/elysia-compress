@@ -51,7 +51,7 @@ export const compression = (
   const lifeCycleType = options?.as ?? 'global'
   const threshold = options?.threshold ?? 1024
   const app = new Elysia({
-    name: 'elysia-compression',
+    name: 'elysia-compress',
     seed: options,
   })
 
