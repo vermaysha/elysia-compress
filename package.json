@@ -8,11 +8,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/vermaysha/elysia-compression.git"
+    "url": "https://github.com/vermaysha/elysia-compress.git"
   },
-  "url": "https://github.com/vermaysha/elysia-compression",
-  "bugs": "https://github.com/vermaysha/elysia-compression/issues",
-  "homepage": "https://github.com/vermaysha/elysia-compression",
+  "url": "https://github.com/vermaysha/elysia-compress",
+  "bugs": "https://github.com/vermaysha/elysia-compress/issues",
+  "homepage": "https://github.com/vermaysha/elysia-compress",
   "keywords": [
     "elysia",
     "compression",
