@@ -1,5 +1,6 @@
 {
   "name": "elysia-compress",
+  "version": "0.0.1-beta.0",
   "description": "Elysia Compression that supports Brotli, GZIP, and Deflate compression",
   "author": {
     "name": "Ashary Vermaysha",
