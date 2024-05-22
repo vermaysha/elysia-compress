@@ -1,5 +1,10 @@
 # elysia-compress
 
+[![CI Test](https://github.com/vermaysha/elysia-compress/actions/workflows/ci.yml/badge.svg)](https://github.com/vermaysha/elysia-compress/actions/workflows/ci.yml)
+[![NPM version](https://img.shields.io/npm/v/elysia-compress.svg?style=flat)](https://www.npmjs.com/package/@fastify/compress)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
+![GitHub License](https://img.shields.io/github/license/vermaysha/elysia-compress?style=flat)
+
 Add compression to [Elysia Server](https://elysiajs.com/essential/handler.html#response). Supports `gzip`, `deflate`, and `brotli`.
 
 **Note** Brotli Compression is only available and supported by Bun v1.1.8 or higher
