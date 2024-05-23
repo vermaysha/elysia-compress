@@ -4,6 +4,8 @@
 [![NPM version](https://img.shields.io/npm/v/elysia-compress.svg?style=flat)](https://www.npmjs.com/package/elysia-compress)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 ![GitHub License](https://img.shields.io/github/license/vermaysha/elysia-compress?style=flat)
+![NPM Downloads](https://img.shields.io/npm/dy/elysia-compress?style=flat)
+
 
 Add compression to [Elysia Server](https://elysiajs.com/essential/handler.html#response). Supports `gzip`, `deflate`, and `brotli`.
 
