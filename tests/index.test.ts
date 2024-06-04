@@ -31,6 +31,7 @@ describe('Compression With Elysia', () => {
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Encoding')).toBeNull()
+    expect(res.headers.get('vary')).toBeNull()
   })
 
   it('handle brotli compression', async () => {
@@ -45,6 +46,7 @@ describe('Compression With Elysia', () => {
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Encoding')).toBe('br')
+    expect(res.headers.get('vary')).toBe('accept-encoding')
   })
 
   it('handle deflate compression', async () => {
@@ -54,6 +56,7 @@ describe('Compression With Elysia', () => {
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Encoding')).toBe('deflate')
+    expect(res.headers.get('vary')).toBe('accept-encoding')
   })
 
   it('handle gzip compression', async () => {
@@ -63,6 +66,7 @@ describe('Compression With Elysia', () => {
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Encoding')).toBe('gzip')
+    expect(res.headers.get('vary')).toBe('accept-encoding')
   })
 
   it('accept additional headers', async () => {
@@ -77,6 +81,7 @@ describe('Compression With Elysia', () => {
 
     expect(res.headers.get('Content-Encoding')).toBe('deflate')
     expect(res.headers.get('x-powered-by')).toBe('Elysia')
+    expect(res.headers.get('vary')).toBe('accept-encoding')
   })
 
   it('return correct plain/text', async () => {
@@ -87,6 +92,7 @@ describe('Compression With Elysia', () => {
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Type')).toBe('text/plain')
+    expect(res.headers.get('vary')).toBe('accept-encoding')
   })
 
   it('return correct application/json', async () => {
@@ -99,6 +105,7 @@ describe('Compression With Elysia', () => {
     expect(res.headers.get('Content-Type')).toBe(
       'application/json;charset=utf-8',
     )
+    expect(res.headers.get('vary')).toBe('accept-encoding')
   })
 
   it('return correct image type', async () => {
@@ -109,6 +116,7 @@ describe('Compression With Elysia', () => {
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Type')).toBe('image/png')
+    expect(res.headers.get('vary')).toBeNull()
   })
 
   it('must be redirected to /not-found', async () => {
@@ -154,6 +162,7 @@ describe('Compression With Elysia', () => {
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Encoding')).toBe('gzip')
+    expect(res.headers.get('vary')).toBe('accept-encoding')
   })
 
   it('cors should be enable when threshold 1024', async () => {
@@ -202,5 +211,6 @@ describe('Compression With Elysia', () => {
     const res = await app.handle(req())
 
     expect(res.headers.get('access-control-allow-origin')).toBe('*')
+    expect(res.headers.get('vary')).toBe('*')
   })
 })
