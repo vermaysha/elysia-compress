@@ -154,7 +154,13 @@ export const compression = (
       const headerValueArray = Array.isArray(rawHeaderValue)
         ? rawHeaderValue
         : [rawHeaderValue]
-      if (!headerValueArray.some((h) => h.includes('accept-encoding'))) {
+
+      // Add accept-encoding header if it doesn't exist
+      // and if vary not set to *
+      if (
+        !headerValueArray.some((h) => h.includes('accept-encoding')) &&
+        !headerValueArray.includes('*')
+      ) {
         headers.Vary = headerValueArray.concat('accept-encoding').join(', ')
       }
     } else {
