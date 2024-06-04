@@ -64,7 +64,7 @@
   },
   "engines": {
     "bun": ">=1.1.8",
-    "node": ">=v18.20.2"
+    "node": ">=18.20.3"
   },
   "lint-staged": {
     "*": "prettier --ignore-unknown --write",
