@@ -2,6 +2,7 @@ import { describe, it, expect } from 'bun:test'
 
 import { Elysia } from 'elysia'
 import { Stream } from '@elysiajs/stream'
+import { cors } from '@elysiajs/cors'
 import { compression } from '../src/index.js'
 
 const req = () =>
@@ -126,7 +127,7 @@ describe('Compression With Elysia', () => {
     const app = new Elysia()
       .use(compression({ encodings: ['gzip'], threshold: 1 }))
       .get('/', ({ cookie: { test } }) => {
-        test.set({
+        test?.set({
           value: 'test',
         })
       })
@@ -153,5 +154,53 @@ describe('Compression With Elysia', () => {
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Encoding')).toBe('gzip')
+  })
+
+  it('cors should be enable when threshold 1024', async () => {
+    const app = new Elysia()
+      .use(
+        cors({
+          origin: true,
+        }),
+      )
+      .use(compression({ encodings: ['gzip'], threshold: 1024 }))
+      .get('/', () => {
+        return new Stream(async (stream) => {
+          stream.send('hello')
+
+          await stream.wait(1000)
+          stream.send('world')
+
+          stream.close()
+        })
+      })
+
+    const res = await app.handle(req())
+
+    expect(res.headers.get('access-control-allow-origin')).toBe('*')
+  })
+
+  it('cors should be enable when threshold 1', async () => {
+    const app = new Elysia()
+      .use(
+        cors({
+          origin: true,
+        }),
+      )
+      .use(compression({ encodings: ['gzip'], threshold: 1 }))
+      .get('/', () => {
+        return new Stream(async (stream) => {
+          stream.send('hello')
+
+          await stream.wait(1000)
+          stream.send('world')
+
+          stream.close()
+        })
+      })
+
+    const res = await app.handle(req())
+
+    expect(res.headers.get('access-control-allow-origin')).toBe('*')
   })
 })
