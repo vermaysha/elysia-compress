@@ -142,7 +142,7 @@ describe('Compression With Elysia', () => {
 
     const res = await app.handle(req())
 
-    expect(res.headers.get('set-cookie')).toBe('test=test')
+    expect(res.headers.get('set-cookie')).toBe('test=test; Path=/')
   })
 
   it('stream should be compressed', async () => {
