@@ -111,11 +111,7 @@ export const compression = (
       const buffer = await res.arrayBuffer()
       // Disable compression when buffer size is less than threshold
       if (buffer.byteLength < threshold) {
-        return new Response(buffer, {
-          headers: res.headers,
-          status: res.status,
-          statusText: res.statusText,
-        })
+        return
       }
 
       // Disable compression when Content-Type is not compressible
@@ -123,11 +119,7 @@ export const compression = (
         res.headers.get('Content-Type') ?? '',
       )
       if (!isCompressible) {
-        return new Response(buffer, {
-          headers: res.headers,
-          status: res.status,
-          statusText: res.statusText,
-        })
+        return
       }
 
       if (encoding === 'br') {
@@ -137,11 +129,7 @@ export const compression = (
       } else if (encoding === 'deflate') {
         compressed = deflateSync(buffer, zlibOptions)
       } else {
-        return new Response(buffer, {
-          headers: res.headers,
-          status: res.status,
-          statusText: res.statusText,
-        })
+        return
       }
       res.headers.set('Content-Encoding', encoding)
 
