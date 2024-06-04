@@ -56,7 +56,7 @@
     "prettier": "^3.2.5",
     "rimraf": "^5.0.7",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^7.9.0"
+    "typescript-eslint": "^7.12.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0",
