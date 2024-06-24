@@ -62,7 +62,7 @@ export const compression = (
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
    */
-  app.onAfterHandle({ as: lifeCycleType }, async (ctx) => {
+  app.mapResponse({ as: lifeCycleType }, async (ctx) => {
     // Disable compression when `x-no-compression` header is set
     if (options?.disableByHeader && ctx.headers['x-no-compression']) {
       return
@@ -167,19 +167,12 @@ export const compression = (
       headers.Vary = 'accept-encoding'
     }
 
-    // Build response from compressed body
-    const compressedResponse = mapResponse(compressed, {
-      headers,
-      status: set.status,
-      cookie: set.cookie,
-      redirect: set.redirect,
-    })
+    set.headers = {
+      ...set.headers,
+      ...headers,
+    }
 
-    set.status = undefined
-    set.cookie = undefined
-    set.redirect = undefined
-    set.headers = {}
-    return compressedResponse
+    return new Response(compressed)
   })
   return app
 }
