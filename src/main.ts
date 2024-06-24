@@ -62,7 +62,7 @@ export const compression = (
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
    */
-  app.onAfterHandle({ as: lifeCycleType }, async (ctx) => {
+  app.mapResponse({ as: lifeCycleType }, async (ctx) => {
     // Disable compression when `x-no-compression` header is set
     if (options?.disableByHeader && ctx.headers['x-no-compression']) {
       return
@@ -83,7 +83,7 @@ export const compression = (
 
     const encoding = encodings[0] as CompressionEncoding
     let compressed: Buffer | ReadableStream<Uint8Array>
-    let headers: Record<string, any> = {}
+    let contentType = set.headers['Content-Type'] ?? ''
 
     /**
      * Compress ReadableStream Object if stream exists (SSE)
@@ -93,20 +93,13 @@ export const compression = (
     if (response?.stream && response.stream instanceof ReadableStream) {
       const stream = response.stream as ReadableStream
       compressed = stream.pipeThrough(CompressionStream(encoding, options))
-      headers = {
-        ...set.headers,
-        ...{
-          'Content-Encoding': encoding,
-        },
-      } as any
     } else {
       const res = mapResponse(response, {
-        headers: set.headers,
+        headers: {},
       })
+      const resContentType = res.headers.get('Content-Type')
 
-      if (!res.headers.get('Content-Type')) {
-        res.headers.set('Content-Type', 'text/plain')
-      }
+      contentType = resContentType ? resContentType : 'text/plain'
 
       const buffer = await res.arrayBuffer()
       // Disable compression when buffer size is less than threshold
@@ -115,9 +108,7 @@ export const compression = (
       }
 
       // Disable compression when Content-Type is not compressible
-      const isCompressible = defaultCompressibleTypes.test(
-        res.headers.get('Content-Type') ?? '',
-      )
+      const isCompressible = defaultCompressibleTypes.test(contentType)
       if (!isCompressible) {
         return
       }
@@ -131,11 +122,6 @@ export const compression = (
       } else {
         return
       }
-      res.headers.set('Content-Encoding', encoding)
-
-      res.headers.forEach((val, key) => {
-        headers[key] = val
-      })
     }
 
     /**
@@ -147,10 +133,11 @@ export const compression = (
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary
      */
-    if (headers.Vary) {
-      const rawHeaderValue = headers.Vary?.split(',').map((v: any) =>
+    if (set.headers.Vary) {
+      const rawHeaderValue = set.headers.Vary?.split(',').map((v: any) =>
         v.trim().toLowerCase(),
       )
+
       const headerValueArray = Array.isArray(rawHeaderValue)
         ? rawHeaderValue
         : [rawHeaderValue]
@@ -161,25 +148,18 @@ export const compression = (
         !headerValueArray.some((h) => h.includes('accept-encoding')) &&
         !headerValueArray.includes('*')
       ) {
-        headers.Vary = headerValueArray.concat('accept-encoding').join(', ')
+        set.headers.Vary = headerValueArray.concat('accept-encoding').join(', ')
       }
     } else {
-      headers.Vary = 'accept-encoding'
+      set.headers.Vary = 'accept-encoding'
     }
+    set.headers['Content-Encoding'] = encoding
 
-    // Build response from compressed body
-    const compressedResponse = mapResponse(compressed, {
-      headers,
-      status: set.status,
-      cookie: set.cookie,
-      redirect: set.redirect,
+    return new Response(compressed, {
+      headers: {
+        'Content-Type': contentType,
+      },
     })
-
-    set.status = undefined
-    set.cookie = undefined
-    set.redirect = undefined
-    set.headers = {}
-    return compressedResponse
   })
   return app
 }
