@@ -55,11 +55,11 @@
     "lint-staged": "^15.2.7",
     "prettier": "^3.3.2",
     "rimraf": "^5.0.7",
-    "typescript": "^5.5.2",
+    "typescript": "^5.5.3",
     "typescript-eslint": "^7.14.1"
   },
   "peerDependencies": {
-    "typescript": "^5.5.2",
+    "typescript": "^5.5.3",
     "elysia": ">= 1.0.26"
   },
   "engines": {
