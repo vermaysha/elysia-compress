@@ -2,7 +2,7 @@
 
 [![CI Test](https://github.com/vermaysha/elysia-compress/actions/workflows/ci.yml/badge.svg)](https://github.com/vermaysha/elysia-compress/actions/workflows/ci.yml)
 [![NPM version](https://img.shields.io/npm/v/elysia-compress.svg?style=flat)](https://www.npmjs.com/package/elysia-compress)
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
+![Codacy coverage](https://img.shields.io/codacy/coverage/cac8faec654f452abf60133df31cf86d)
 ![GitHub License](https://img.shields.io/github/license/vermaysha/elysia-compress?style=flat)
 ![NPM Downloads](https://img.shields.io/npm/dy/elysia-compress?style=flat)
 
