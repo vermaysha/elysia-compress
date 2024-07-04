@@ -1,24 +1,13 @@
-import { describe, it, expect } from 'bun:test'
-
-import { Elysia } from 'elysia'
+import { describe, expect, it } from 'bun:test'
+import zlib from 'node:zlib'
+import Elysia from 'elysia'
 import { Stream } from '@elysiajs/stream'
 import { cors } from '@elysiajs/cors'
-import { compression } from '../src/index.js'
 
-const req = () =>
-  new Request('http://localhost/', {
-    headers: {
-      'accept-encoding': 'br, deflate, gzip, zstd',
-    },
-  })
+import { req, responseShort, jsonResponse } from './setup'
+import compression from '../src'
 
-const response = `
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`
-
-describe('Compression With Elysia', () => {
+describe(`elysia-compress`, () => {
   it('Dont compress when the threshold is not met', async () => {
     const app = new Elysia()
       .use(
@@ -27,7 +16,7 @@ describe('Compression With Elysia', () => {
           threshold: 1024,
         }),
       )
-      .get('/', () => response)
+      .get('/', () => responseShort)
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Encoding')).toBeNull()
@@ -42,7 +31,7 @@ describe('Compression With Elysia', () => {
           threshold: 1,
         }),
       )
-      .get('/', () => response)
+      .get('/', () => responseShort)
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Encoding')).toBe('br')
@@ -52,7 +41,7 @@ describe('Compression With Elysia', () => {
   it('handle deflate compression', async () => {
     const app = new Elysia()
       .use(compression({ encodings: ['deflate'], threshold: 1 }))
-      .get('/', () => response)
+      .get('/', () => responseShort)
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Encoding')).toBe('deflate')
@@ -62,7 +51,7 @@ describe('Compression With Elysia', () => {
   it('handle gzip compression', async () => {
     const app = new Elysia()
       .use(compression({ encodings: ['gzip'], threshold: 1 }))
-      .get('/', () => response)
+      .get('/', () => responseShort)
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Encoding')).toBe('gzip')
@@ -75,7 +64,7 @@ describe('Compression With Elysia', () => {
       .get('/', ({ set }) => {
         set.headers['x-powered-by'] = 'Elysia'
 
-        return response
+        return responseShort
       })
     const res = await app.handle(req())
 
@@ -87,7 +76,7 @@ describe('Compression With Elysia', () => {
   it('return correct plain/text', async () => {
     const app = new Elysia()
       .use(compression({ encodings: ['gzip'], threshold: 1 }))
-      .get('/', () => response)
+      .get('/', () => responseShort)
 
     const res = await app.handle(req())
 
@@ -212,5 +201,124 @@ describe('Compression With Elysia', () => {
 
     expect(res.headers.get('access-control-allow-origin')).toBe('*')
     expect(res.headers.get('vary')).toBe('*')
+  })
+
+  it(`Should't compress response if threshold is not met minimum size (1024)`, async () => {
+    const app = new Elysia()
+      .use(compression({ threshold: 1024 }))
+      .get('/', () => {
+        return responseShort
+      })
+
+    const res = await app.handle(req())
+
+    expect(res.status).toBe(200)
+    expect(res.headers.get('Content-Encoding')).toBeNull()
+    expect(res.headers.get('Vary')).toBeNull()
+  })
+
+  it(`Should't compress response if x-no-compression header is present`, async () => {
+    const app = new Elysia()
+      .use(compression({ disableByHeader: true }))
+      .get('/', () => {
+        return responseShort
+      })
+
+    const res = await app.handle(req({ 'x-no-compression': 'true' }))
+
+    expect(res.status).toBe(200)
+    expect(res.headers.get('Content-Encoding')).toBeNull()
+    expect(res.headers.get('Vary')).toBeNull()
+  })
+
+  it(`When not compress response send original response`, async () => {
+    const app = new Elysia()
+      .use(compression({ threshold: 1024 }))
+      .get('/', () => {
+        return responseShort
+      })
+
+    const res = await app.handle(req())
+    const test = await res.text()
+
+    expect(res.status).toBe(200)
+    expect(res.headers.get('Content-Encoding')).toBeNull()
+    expect(res.headers.get('Vary')).toBeNull()
+    expect(test).toBe(responseShort)
+  })
+
+  it(`When not compress response should send original content-type`, async () => {
+    const app = new Elysia()
+      .use(compression({ threshold: Number.MAX_SAFE_INTEGER }))
+      .get('/', () => {
+        return jsonResponse
+      })
+
+    const res = await app.handle(req())
+    const test = await res.text()
+
+    expect(res.status).toBe(200)
+    expect(res.headers.get('Content-Encoding')).toBeNull()
+    expect(res.headers.get('Vary')).toBeNull()
+    expect(test).toBe(await jsonResponse.text())
+    expect(res.headers.get('Content-Type')).toBe(
+      'application/json;charset=utf-8',
+    )
+  })
+
+  it(`Should'nt compress response if browser not support any compression algorithm`, async () => {
+    const app = new Elysia()
+      .use(compression({ threshold: 1024 }))
+      .get('/', () => {
+        return responseShort
+      })
+
+    const res = await app.handle(req({ 'accept-encoding': '*' }))
+
+    expect(res.status).toBe(200)
+    expect(res.headers.get('Content-Encoding')).toBeNull()
+    expect(res.headers.get('Vary')).toBeNull()
+  })
+
+  it(`Should return data from cache`, async () => {
+    const app = new Elysia().use(compression({ threshold: 0 })).get('/', () => {
+      return responseShort
+    })
+
+    const res = await app.handle(req())
+    const test = zlib
+      .brotliDecompressSync(await res.arrayBuffer())
+      .toString('utf-8')
+
+    expect(res.status).toBe(200)
+    expect(res.headers.get('Content-Encoding')).toBe('br')
+    expect(res.headers.get('Vary')).toBe('accept-encoding')
+    expect(test).toBe(responseShort)
+
+    const res2 = await app.handle(req())
+    const test2 = zlib
+      .brotliDecompressSync(await res2.arrayBuffer())
+      .toString('utf-8')
+
+    expect(res2.status).toBe(200)
+    expect(res2.headers.get('Content-Encoding')).toBe('br')
+    expect(res2.headers.get('Vary')).toBe('accept-encoding')
+    expect(test2).toBe(responseShort)
+    expect(test2).toBe(test)
+  })
+
+  it(`Don't append vary header if values are *`, async () => {
+    const app = new Elysia()
+      .use(compression({ threshold: 0 }))
+      .get('/', (ctx) => {
+        ctx.set.headers['Vary'] = 'location, header'
+        return responseShort
+      })
+
+    const res = await app.handle(req())
+
+    expect(res.status).toBe(200)
+    expect(res.headers.get('Content-Encoding')).toBe('br')
+    expect(res.headers.get('Vary')).toBe('location, header, accept-encoding')
   })
 })
