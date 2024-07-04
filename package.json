@@ -34,7 +34,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "prepare": "husky",
-    "format": "eslint --fix .",
+    "format": "eslint --fix {./src/,./tests/}*.ts",
     "lint": "eslint .",
     "build": "rimraf dist && tsc --project tsconfig.esm.json && tsc --project tsconfig.cjs.json",
     "test": "bun test && npm run test:node",

@@ -1,2 +1,3 @@
 bunx lint-staged
 bun run test
+bun run format
