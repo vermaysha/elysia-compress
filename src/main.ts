@@ -147,11 +147,7 @@ export const compression = (
         return
       }
 
-      if (['br', 'gzip', 'deflate'].includes(encoding)) {
-        compressed = getOrCompress(encoding, buffer) // Will try cache first
-      } else {
-        return
-      }
+      compressed = getOrCompress(encoding, buffer) // Will try cache first
     }
 
     /**
@@ -174,11 +170,11 @@ export const compression = (
 
       // Add accept-encoding header if it doesn't exist
       // and if vary not set to *
-      if (
-        !headerValueArray.some((h) => h.includes('accept-encoding')) &&
-        !headerValueArray.includes('*')
-      ) {
-        set.headers.Vary = headerValueArray.concat('accept-encoding').join(', ')
+      if (!headerValueArray.includes('*')) {
+        set.headers.Vary = headerValueArray
+          .concat('accept-encoding')
+          .filter((value, index, array) => array.indexOf(value) === index)
+          .join(', ')
       }
     } else {
       set.headers.Vary = 'accept-encoding'
