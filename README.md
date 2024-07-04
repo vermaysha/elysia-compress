@@ -124,3 +124,10 @@ const app = new Elysia().use(
 ```
 
 This allows you to control how long the cached compressed responses are stored, helping to balance between performance and memory usage
+
+
+## Contributors
+
+<a href="https://github.com/vermaysha/elysia-compress/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=vermaysha/elysia-compress" />
+</a>
