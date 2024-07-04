@@ -66,18 +66,27 @@ export const compression = (
     gzip: (buffer: ArrayBuffer) => gzipSync(buffer, zlibOptions),
     deflate: (buffer: ArrayBuffer) => deflateSync(buffer, zlibOptions),
   } as Record<CompressionEncoding, (buffer: ArrayBuffer) => Buffer>
-
   const textDecoder = new TextDecoder()
-  const getOrCompress = (algorithm: CompressionEncoding, buffer: ArrayBuffer): Buffer => {
+
+  /**
+   * Gets or compresses the response body based on the client's accept-encoding header.
+   *
+   * @param {CompressionEncoding} algorithm - The compression algorithm to use.
+   * @param {ArrayBuffer} buffer - The buffer to compress.
+   * @returns {Buffer} The compressed buffer.
+   */
+  const getOrCompress = (
+    algorithm: CompressionEncoding,
+    buffer: ArrayBuffer,
+  ): Buffer => {
     const cacheKey = Bun.hash(`${algorithm}:${textDecoder.decode(buffer)}}`)
     if (cacheStore.has(cacheKey)) {
       return cacheStore.get(cacheKey)
     }
-    else {
-      const compressedOutput = compressors[algorithm](buffer)
-      cacheStore.set(cacheKey, compressedOutput, cacheTTL)
-      return compressedOutput
-    }
+
+    const compressedOutput = compressors[algorithm](buffer)
+    cacheStore.set(cacheKey, compressedOutput, cacheTTL)
+    return compressedOutput
   }
 
   /**
@@ -139,9 +148,8 @@ export const compression = (
       }
 
       if (['br', 'gzip', 'deflate'].includes(encoding)) {
-        compressed = getOrCompress(encoding, buffer)  // Will try cache first
-      }
-      else {
+        compressed = getOrCompress(encoding, buffer) // Will try cache first
+      } else {
         return
       }
     }

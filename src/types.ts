@@ -75,4 +75,6 @@ export type CacheOptions = {
   TTL?: number
 }
 
-export type ElysiaCompressionOptions = CompressionOptions & LifeCycleOptions & CacheOptions
+export type ElysiaCompressionOptions = CompressionOptions &
+  LifeCycleOptions &
+  CacheOptions
