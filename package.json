@@ -35,7 +35,7 @@
   "scripts": {
     "prepare": "husky",
     "format": "eslint --fix {./src/,./tests/}*.ts",
-    "lint": "eslint .",
+    "lint": "eslint {./src/,./tests/}*.ts",
     "build": "rimraf dist && tsc --project tsconfig.esm.json && tsc --project tsconfig.cjs.json",
     "test": "bun test && npm run test:node",
     "test:node": "npm install --prefix ./tests/node/cjs/ && npm install --prefix ./tests/node/esm/ && node ./tests/node/cjs/index.js && node ./tests/node/esm/index.js",

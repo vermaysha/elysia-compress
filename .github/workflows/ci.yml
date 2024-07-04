@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build code, Lint code and Test all code
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build and test code
+    name: Build code, Lint code and test code
     runs-on: ubuntu-latest
 
     steps:
@@ -27,6 +27,9 @@ jobs:
 
       - name: Install packages
         run: bun install --frozen-lockfile
+
+      - name: Lint code
+        run: bun run lint
 
       - name: Build code
         run: bun run build
