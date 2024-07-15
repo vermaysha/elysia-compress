@@ -117,7 +117,8 @@ export const compression = (
 
     const encoding = encodings[0] as CompressionEncoding
     let compressed: Buffer | ReadableStream<Uint8Array>
-    let contentType = set.headers['Content-Type'] ?? ''
+    let contentType =
+      set.headers['Content-Type'] ?? set.headers['content-type'] ?? ''
 
     /**
      * Compress ReadableStream Object if stream exists (SSE)
@@ -159,10 +160,11 @@ export const compression = (
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary
      */
-    if (set.headers.Vary) {
-      const rawHeaderValue = set.headers.Vary?.split(',').map((v: any) =>
-        v.trim().toLowerCase(),
-      )
+    const vary = set.headers.Vary ?? set.headers.vary
+    if (vary) {
+      const rawHeaderValue = vary
+        ?.split(',')
+        .map((v: any) => v.trim().toLowerCase())
 
       const headerValueArray = Array.isArray(rawHeaderValue)
         ? rawHeaderValue
