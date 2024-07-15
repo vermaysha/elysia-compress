@@ -6,7 +6,6 @@
 ![GitHub License](https://img.shields.io/github/license/vermaysha/elysia-compress?style=flat)
 ![NPM Downloads](https://img.shields.io/npm/dy/elysia-compress?style=flat)
 
-
 Add compression to [Elysia Server](https://elysiajs.com/essential/handler.html#response). Supports `gzip`, `deflate`, and `brotli`.
 
 **Note** Brotli Compression is only available and supported by Bun v1.1.8 or higher
@@ -125,9 +124,24 @@ const app = new Elysia().use(
 
 This allows you to control how long the cached compressed responses are stored, helping to balance between performance and memory usage
 
+### Cache Server-Sent-Events
+
+By default, `elysia-compress` will not compress responses in Server-Sent Events. If you want to enable compression in Server-Sent Events, you can set the `compressStream` option to `true`.
+
+```typescript
+const app = new Elysia().use(
+  compression({
+    compressStream: true,
+  }),
+)
+```
 
 ## Contributors
 
 <a href="https://github.com/vermaysha/elysia-compress/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=vermaysha/elysia-compress" />
 </a>
+
+## License
+
+This plugins is licensed under the [MIT License](LICENSE).

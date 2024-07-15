@@ -57,6 +57,7 @@ export const compression = (
   const threshold = options?.threshold ?? 1024
   const cacheTTL = options?.TTL ?? 24 * 60 * 60 // 24 hours
   const disableByHeader = options?.disableByHeader ?? true
+  const compressStream = options?.compressStream ?? true
   const app = new Elysia({
     name: 'elysia-compress',
     seed: options,
@@ -126,7 +127,7 @@ export const compression = (
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream
      */
-    if (response?.stream && response.stream instanceof ReadableStream) {
+    if (compressStream && response?.stream instanceof ReadableStream) {
       const stream = response.stream as ReadableStream
       compressed = stream.pipeThrough(CompressionStream(encoding, options))
     } else {

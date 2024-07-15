@@ -48,6 +48,16 @@ export type CompressionOptions = {
    * @default 1024
    */
   threshold?: number
+
+  /**
+   * Whether to compress the stream data or not.
+   * This generally refers to Server-Sent-Events
+   *
+   * @link https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
+   * Defaults to `false`
+   * @default false
+   */
+  compressStream: boolean
 }
 
 export type LifeCycleOptions = {
@@ -68,7 +78,7 @@ export type LifeCycleOptions = {
 
 export type CacheOptions = {
   /**
-   * The time-to-live in seconds.
+   * The time-to-live in seconds for the cache.
    *
    * @default 86400 (24 hours)
    */
