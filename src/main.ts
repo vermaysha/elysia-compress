@@ -56,6 +56,7 @@ export const compression = (
   const lifeCycleType = options?.as ?? 'global'
   const threshold = options?.threshold ?? 1024
   const cacheTTL = options?.TTL ?? 24 * 60 * 60 // 24 hours
+  const disableByHeader = options?.disableByHeader ?? true
   const app = new Elysia({
     name: 'elysia-compress',
     seed: options,
@@ -98,7 +99,7 @@ export const compression = (
    */
   app.mapResponse({ as: lifeCycleType }, async (ctx) => {
     // Disable compression when `x-no-compression` header is set
-    if (options?.disableByHeader && ctx.headers['x-no-compression']) {
+    if (disableByHeader && ctx.headers['x-no-compression']) {
       return
     }
 
