@@ -42,7 +42,7 @@
     "release": "npm run build && npm run test && npm publish --access public"
   },
   "devDependencies": {
-    "@elysiajs/cors": "^1.1.0",
+    "@elysiajs/cors": "^1.1.1",
     "@elysiajs/stream": "^1.1.0",
     "@eslint/js": "^9.9.1",
     "@types/bun": "latest",
