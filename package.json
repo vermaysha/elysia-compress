@@ -47,7 +47,7 @@
     "@eslint/js": "^9.13.0",
     "@types/bun": "latest",
     "bun-types": "^1.1.31",
-    "elysia": "^1.1.22",
+    "elysia": "^1.1.23",
     "eslint": "^9.13.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
@@ -60,7 +60,7 @@
   },
   "peerDependencies": {
     "typescript": "^5.6.3",
-    "elysia": ">= 1.1.22"
+    "elysia": ">= 1.1.23"
   },
   "engines": {
     "bun": ">=1.1.8",
