@@ -44,11 +44,11 @@
   "devDependencies": {
     "@elysiajs/cors": "^1.1.1",
     "@elysiajs/stream": "^1.1.0",
-    "@eslint/js": "^9.13.0",
+    "@eslint/js": "^9.14.0",
     "@types/bun": "latest",
     "bun-types": "^1.1.33",
     "elysia": "^1.1.24",
-    "eslint": "^9.13.0",
+    "eslint": "^9.14.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "husky": "^9.1.6",
