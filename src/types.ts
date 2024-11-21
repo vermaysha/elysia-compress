@@ -57,7 +57,7 @@ export type CompressionOptions = {
    * Defaults to `false`
    * @default false
    */
-  compressStream: boolean
+  compressStream?: boolean
 }
 
 export type LifeCycleOptions = {
