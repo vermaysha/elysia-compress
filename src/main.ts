@@ -134,7 +134,7 @@ export const compression = (
 
       contentType = resContentType ? resContentType : 'text/plain'
 
-      const buffer = await res.arrayBuffer()
+      const buffer = await res.clone().arrayBuffer()
       // Disable compression when buffer size is less than threshold
       if (buffer.byteLength < threshold) {
         return
