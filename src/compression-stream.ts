@@ -16,18 +16,14 @@ export const CompressionStream = (
   let handler: Transform
 
   const zlibOptions: zlib.ZlibOptions = {
-    ...{
-      level: 6,
-    },
+    level: 6,
     ...options?.zlibOptions,
   }
   const brotliOptions: zlib.BrotliOptions = {
-    ...{
-      params: {
-        [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
-        [zlib.constants.BROTLI_PARAM_QUALITY]:
-          zlib.constants.BROTLI_DEFAULT_QUALITY,
-      },
+    params: {
+      [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+      [zlib.constants.BROTLI_PARAM_QUALITY]:
+        zlib.constants.BROTLI_DEFAULT_QUALITY,
     },
     ...options?.brotliOptions,
   }

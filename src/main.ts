@@ -36,17 +36,13 @@ export const compression = (
   options?: CompressionOptions & LifeCycleOptions & CacheOptions,
 ) => {
   const zlibOptions: ZlibOptions = {
-    ...{
-      level: 6,
-    },
+    level: 6,
     ...options?.zlibOptions,
   }
   const brotliOptions: BrotliOptions = {
-    ...{
-      params: {
-        [constants.BROTLI_PARAM_MODE]: constants.BROTLI_MODE_GENERIC,
-        [constants.BROTLI_PARAM_QUALITY]: constants.BROTLI_DEFAULT_QUALITY,
-      },
+    params: {
+      [constants.BROTLI_PARAM_MODE]: constants.BROTLI_MODE_GENERIC,
+      [constants.BROTLI_PARAM_QUALITY]: constants.BROTLI_DEFAULT_QUALITY,
     },
     ...options?.brotliOptions,
   }
