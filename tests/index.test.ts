@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'bun:test'
 import zlib from 'node:zlib'
 import Elysia from 'elysia'
+import staticPlugin from '@elysiajs/static'
 import { Stream } from '@elysiajs/stream'
 import { cors } from '@elysiajs/cors'
 
-import { req, responseShort, jsonResponse } from './setup'
+import { req, responseShort, imageResponse, jsonResponse } from './setup'
 import compression from '../src'
 
 describe(`elysia-compress`, () => {
@@ -97,15 +98,40 @@ describe(`elysia-compress`, () => {
     expect(res.headers.get('vary')).toBe('accept-encoding')
   })
 
-  it('return correct image type', async () => {
+  it('return correct image', async () => {
     const app = new Elysia()
       .use(compression({ encodings: ['gzip'], threshold: 1 }))
-      .get('/', () => Bun.file('tests/waifu.png'))
+      .get('/', () => imageResponse)
 
     const res = await app.handle(req())
 
     expect(res.headers.get('Content-Type')).toBe('image/png')
     expect(res.headers.get('vary')).toBeNull()
+
+    const actualBody = await res.arrayBuffer()
+    const expectedBody = await imageResponse.arrayBuffer()
+    expect(actualBody).toEqual(expectedBody)
+  })
+
+  it('return correct image from static plugin', async () => {
+    const app = new Elysia()
+      .use(staticPlugin({ assets: 'tests/images', prefix: '' }))
+      .use(compression())
+
+    await app.modules
+
+    const res = await app.handle(
+      new Request('http://localhost/waifu.png', {
+        headers: { 'accept-encoding': 'br, deflate, gzip, zstd' },
+      }),
+    )
+
+    expect(res.headers.get('Content-Type')).toBe('image/png')
+    expect(res.headers.get('vary')).toBeNull()
+
+    const actualBody = await res.arrayBuffer()
+    const expectedBody = await imageResponse.arrayBuffer()
+    expect(actualBody).toEqual(expectedBody)
   })
 
   it('must be redirected to /not-found', async () => {

@@ -15,3 +15,5 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 export const responseLong = responseShort.repeat(100)
 
 export const jsonResponse = Bun.file('./tests/data.json')
+
+export const imageResponse = Bun.file('./tests/images/waifu.png')
