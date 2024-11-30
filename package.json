@@ -48,7 +48,7 @@
     "@types/bun": "latest",
     "bun-types": "^1.1.38",
     "elysia": "^1.1.25",
-    "eslint": "^9.15.0",
+    "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "husky": "^9.1.7",
