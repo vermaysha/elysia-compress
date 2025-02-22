@@ -46,7 +46,7 @@
     "@elysiajs/stream": "^1.1.0",
     "@eslint/js": "^9.21.0",
     "@types/bun": "latest",
-    "bun-types": "^1.2.2",
+    "bun-types": "^1.2.3",
     "elysia": "^1.1.27",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^9.1.0",
