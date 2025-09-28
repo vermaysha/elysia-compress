@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import zlib from 'node:zlib'
-import Elysia from 'elysia'
+import { Elysia } from 'elysia'
 import { Stream } from '@elysiajs/stream'
 import { cors } from '@elysiajs/cors'
 
@@ -111,8 +111,8 @@ describe(`elysia-compress`, () => {
   it('must be redirected to /not-found', async () => {
     const app = new Elysia()
       .use(compression({ encodings: ['gzip'], threshold: 1 }))
-      .get('/', ({ set }) => {
-        set.redirect = '/not-found'
+      .get('/', ({ redirect }) => {
+        return redirect('/not-found')
       })
 
     const res = await app.handle(req())

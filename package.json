@@ -47,7 +47,7 @@
     "@eslint/js": "^9.36.0",
     "@types/bun": "latest",
     "bun-types": "^1.2.22",
-    "elysia": "^1.1.27",
+    "elysia": "^1.4.8",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-prettier": "^5.5.4",
@@ -55,7 +55,7 @@
     "lint-staged": "^15.5.2",
     "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "typescript-eslint": "^7.18.0"
   },
   "peerDependencies": {
