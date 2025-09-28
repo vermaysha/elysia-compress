@@ -106,11 +106,11 @@ export const compression = (
       }
 
       // Disable compression when `x-no-compression` header is set
-      if (disableByHeader && headers['x-no-compression']) {
+      if (disableByHeader && headers?.['x-no-compression']) {
         return
       }
 
-      const acceptEncodingsHeader = headers['accept-encoding']
+      const acceptEncodingsHeader = headers?.['accept-encoding']
       if (!acceptEncodingsHeader) {
         return
       }
