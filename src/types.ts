@@ -54,10 +54,10 @@ export type CompressionOptions = {
    * This generally refers to Server-Sent-Events
    *
    * @link https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
-   * Defaults to `false`
-   * @default false
+   * Defaults to `true`
+   * @default true
    */
-  compressStream: boolean
+  compressStream?: boolean
 }
 
 export type LifeCycleOptions = {

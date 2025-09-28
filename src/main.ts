@@ -1,4 +1,4 @@
-import { Elysia, mapResponse } from 'elysia'
+import { Elysia } from 'elysia'
 import type {
   CacheOptions,
   CompressionEncoding,
@@ -60,7 +60,6 @@ export const compression = (
   const compressStream = options?.compressStream ?? true
   const app = new Elysia({
     name: 'elysia-compress',
-    seed: options,
   })
 
   const compressors = {
@@ -98,98 +97,133 @@ export const compression = (
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
    */
-  app.mapResponse({ as: lifeCycleType }, async (ctx) => {
-    // Disable compression when `x-no-compression` header is set
-    if (disableByHeader && ctx.headers['x-no-compression']) {
-      return
-    }
-
-    const { set } = ctx
-    const response = ctx.response as any
-
-    const acceptEncodings: string[] =
-      ctx.headers['accept-encoding']?.split(', ') ?? []
-    const encodings: string[] = defaultEncodings.filter((encoding) =>
-      acceptEncodings.includes(encoding),
-    )
-
-    if (encodings.length < 1 && !encodings[0]) {
-      return
-    }
-
-    const encoding = encodings[0] as CompressionEncoding
-    let compressed: Buffer | ReadableStream<Uint8Array>
-    let contentType =
-      set.headers['Content-Type'] ?? set.headers['content-type'] ?? ''
-
-    /**
-     * Compress ReadableStream Object if stream exists (SSE)
-     *
-     * @see https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream
-     */
-    if (compressStream && response?.stream instanceof ReadableStream) {
-      const stream = response.stream as ReadableStream
-      compressed = stream.pipeThrough(CompressionStream(encoding, options))
-    } else {
-      const res = mapResponse(response, {
-        headers: {},
-      })
-      const resContentType = res.headers.get('Content-Type')
-
-      contentType = resContentType ? resContentType : 'text/plain'
-
-      const buffer = await res.arrayBuffer()
-      // Disable compression when buffer size is less than threshold
-      if (buffer.byteLength < threshold) {
+  app.mapResponse(
+    { as: lifeCycleType },
+    async ({ responseValue, set, headers }) => {
+      // Don't compress if the response is already a Response object (like redirects)
+      if (responseValue instanceof Response) {
         return
       }
 
-      // Disable compression when Content-Type is not compressible
-      const isCompressible = defaultCompressibleTypes.test(contentType)
-      if (!isCompressible) {
+      // Disable compression when `x-no-compression` header is set
+      if (disableByHeader && headers?.['x-no-compression']) {
         return
       }
 
-      compressed = getOrCompress(encoding, buffer) // Will try cache first
-    }
-
-    /**
-     * Send Vary HTTP Header
-     *
-     * The Vary HTTP response header describes the parts of the request message aside
-     * from the method and URL that influenced the content of the response it occurs in.
-     * Most often, this is used to create a cache key when content negotiation is in use.
-     *
-     * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary
-     */
-    const vary = set.headers.Vary ?? set.headers.vary
-    if (vary) {
-      const rawHeaderValue = vary
-        ?.split(',')
-        .map((v: any) => v.trim().toLowerCase())
-
-      const headerValueArray = Array.isArray(rawHeaderValue)
-        ? rawHeaderValue
-        : [rawHeaderValue]
-
-      // Add accept-encoding header if it doesn't exist
-      // and if vary not set to *
-      if (!headerValueArray.includes('*')) {
-        set.headers.Vary = headerValueArray
-          .concat('accept-encoding')
-          .filter((value, index, array) => array.indexOf(value) === index)
-          .join(', ')
+      const acceptEncodingsHeader = headers?.['accept-encoding']
+      if (!acceptEncodingsHeader) {
+        return
       }
-    } else {
-      set.headers.Vary = 'accept-encoding'
-    }
-    set.headers['Content-Encoding'] = encoding
 
-    return new Response(compressed, {
-      headers: {
-        'Content-Type': contentType,
-      },
-    })
-  })
+      const acceptEncodings: string[] = acceptEncodingsHeader.split(', ')
+      const encodings: string[] = defaultEncodings.filter((encoding) =>
+        acceptEncodings.includes(encoding),
+      )
+
+      if (encodings.length < 1) {
+        return
+      }
+
+      const encoding = encodings[0] as CompressionEncoding
+      let compressed: Buffer | ReadableStream<Uint8Array>
+      let contentType =
+        (set.headers['Content-Type'] as string) ??
+        (set.headers['content-type'] as string) ??
+        ''
+
+      /**
+       * Compress ReadableStream Object if stream exists (SSE)
+       *
+       * @see https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream
+       */
+      if (
+        compressStream &&
+        (responseValue as any)?.stream instanceof ReadableStream
+      ) {
+        const stream = (responseValue as any).stream as ReadableStream
+        compressed = stream.pipeThrough(CompressionStream(encoding, options))
+      } else {
+        // Handle Bun.file (for images and other files)
+        if (
+          responseValue &&
+          typeof responseValue === 'object' &&
+          'type' in responseValue &&
+          'arrayBuffer' in responseValue
+        ) {
+          // This is likely a Bun.file, don't compress it
+          return
+        }
+
+        // Convert response to text/buffer for compression
+        const isJson =
+          typeof responseValue === 'object' && responseValue !== null
+        const text = isJson
+          ? JSON.stringify(responseValue)
+          : (responseValue?.toString() ?? '')
+
+        contentType = isJson
+          ? 'application/json;charset=utf-8'
+          : contentType || 'text/plain'
+
+        const buffer = new TextEncoder().encode(text)
+
+        // Disable compression when buffer size is less than threshold
+        if (buffer.byteLength < threshold) {
+          return
+        }
+
+        // Disable compression when Content-Type is not compressible
+        const isCompressible = defaultCompressibleTypes.test(contentType)
+        if (!isCompressible) {
+          return
+        }
+
+        compressed = getOrCompress(encoding, buffer.buffer) // Will try cache first
+      }
+
+      /**
+       * Send Vary HTTP Header
+       *
+       * The Vary HTTP response header describes the parts of the request message aside
+       * from the method and URL that influenced the content of the response it occurs in.
+       * Most often, this is used to create a cache key when content negotiation is in use.
+       *
+       * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary
+       */
+      const vary = (set.headers.Vary as string) ?? (set.headers.vary as string)
+      if (vary) {
+        const rawHeaderValue = vary
+          .split(',')
+          .map((v: string) => v.trim().toLowerCase())
+
+        const headerValueArray = Array.isArray(rawHeaderValue)
+          ? rawHeaderValue
+          : [rawHeaderValue]
+
+        // Add accept-encoding header if it doesn't exist
+        // and if vary not set to *
+        if (!headerValueArray.includes('*')) {
+          set.headers.Vary = headerValueArray
+            .concat('accept-encoding')
+            .filter((value, index, array) => array.indexOf(value) === index)
+            .join(', ')
+        }
+      } else {
+        set.headers.Vary = 'accept-encoding'
+      }
+      set.headers['Content-Encoding'] = encoding
+
+      return new Response(
+        compressed instanceof ReadableStream
+          ? compressed
+          : new Uint8Array(compressed),
+        {
+          headers: {
+            'Content-Type': contentType,
+          },
+        },
+      )
+    },
+  )
   return app
 }
