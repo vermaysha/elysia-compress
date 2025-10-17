@@ -44,7 +44,7 @@
   "devDependencies": {
     "@elysiajs/cors": "^1.4.0",
     "@elysiajs/stream": "^1.1.0",
-    "@eslint/js": "^9.37.0",
+    "@eslint/js": "^9.38.0",
     "@types/bun": "latest",
     "bun-types": "^1.3.0",
     "elysia": "^1.1.27",
